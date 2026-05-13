@@ -1,0 +1,17 @@
+{
+  "dimensions": [
+    { "id": "D1", "name": "Greeting and identification", "weight": 0.05 },
+    { "id": "D2", "name": "Issue comprehension", "weight": 0.15 },
+    { "id": "D3", "name": "Accuracy of information provided", "weight": 0.25 },
+    { "id": "D4", "name": "Regulatory and compliance language", "weight": 0.20 },
+    { "id": "D5", "name": "Empathy and tone", "weight": 0.15 },
+    { "id": "D6", "name": "Resolution and next steps clarity", "weight": 0.15 },
+    { "id": "D7", "name": "Call closure", "weight": 0.05 }
+  ],
+  "auto_fail_conditions": [
+    "Agent promises a specific outcome they cannot guarantee",
+    "Agent discloses account details without completing identity verification",
+    "Agent uses dismissive or confrontational language",
+    "Agent provides incorrect regulatory information"
+  ]
+}

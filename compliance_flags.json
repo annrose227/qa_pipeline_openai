@@ -1,0 +1,12 @@
+{
+  "T-1041": [],
+  "T-1042": {
+    "call_id": "T-1042",
+    "statement_text": "What's your email?",
+    "speaker": "Marcus",
+    "risk_type": "data_disclosure",
+    "severity": "medium",
+    "explanation": "The agent requests the customer's email address without verifying the customer's identity, which could lead to data privacy or security risks if the caller is not the account holder."
+  },
+  "T-1043": []
+}

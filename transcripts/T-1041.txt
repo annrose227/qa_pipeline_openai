@@ -1,0 +1,12 @@
+--- T-1041 (Agent: Sara) ---
+Sara: Thank you for calling Deriv support, you're speaking with Sara, how can I help you today?
+Customer: Hi, I've been waiting 6 days for my withdrawal and I'm getting really frustrated.
+Sara: I completely understand your frustration, and I appreciate your patience. Can I take your account email to look into this?
+Customer: It's john.doe@email.com
+Sara: Thank you. I can see the withdrawal was initiated on the 12th. It looks like it's been flagged for a manual compliance review, which can take up to 7 business days. You're within that window, but I can escalate it for you to a senior reviewer.
+Customer: Will that guarantee it gets processed today?
+Sara: I can't guarantee same-day processing, but escalating will ensure it's reviewed as a priority — typically within 24 hours. I'll raise that for you now.
+Customer: Okay, thank you.
+Sara: You'll get an email confirmation of the escalation within the hour. Is there anything else I can help with?
+Customer: No, that's all.
+Sara: Great, thank you for your patience and for calling Deriv. Have a great day!

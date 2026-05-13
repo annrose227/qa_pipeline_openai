@@ -1,0 +1,96 @@
+{
+  "call_id": "T-1042",
+  "agent_name": "Marcus",
+  "turns": [
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 1,
+      "speaker": "Marcus",
+      "text": "Deriv support, Marcus speaking."
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 2,
+      "speaker": "Customer",
+      "text": "I want to know why my account was suspended. I haven't done anything wrong."
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 3,
+      "speaker": "Marcus",
+      "text": "Okay so I need to look at your account. What's your email?"
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 4,
+      "speaker": "Customer",
+      "text": "mark.smith@email.com"
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 5,
+      "speaker": "Marcus",
+      "text": "Right, I can see here your account was flagged by our fraud team. It looks like there were some unusual login patterns."
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 6,
+      "speaker": "Customer",
+      "text": "That's ridiculous. I want it unsuspended now."
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 7,
+      "speaker": "Marcus",
+      "text": "I get that you're annoyed but there's not much I can do. The fraud team makes that call, not me. You'd have to wait for them to review it which could be weeks."
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 8,
+      "speaker": "Customer",
+      "text": "Weeks?! That's unacceptable. I have money in there."
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 9,
+      "speaker": "Marcus",
+      "text": "Yeah I understand but I can't override the fraud team. That's just how it works. I can log a note if you want."
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 10,
+      "speaker": "Customer",
+      "text": "This is terrible service. I'm going to report you."
+    },
+    {
+      "call_id": "T-1042",
+      "agent_name": "Marcus",
+      "turn_number": 11,
+      "speaker": "Marcus",
+      "text": "That's your right. Is there anything else?"
+    }
+  ],
+  "metadata": {
+    "estimated_duration_minutes": 8,
+    "total_turns": 11,
+    "agent_turns": 6,
+    "customer_turns": 5,
+    "issue_type": "financial_transaction",
+    "resolution_status": "unresolved",
+    "customer_escalation_signals": [
+      "That's ridiculous. I want it unsuspended now.",
+      "Weeks?! That's unacceptable. I have money in there.",
+      "This is terrible service. I'm going to report you."
+    ]
+  }
+}

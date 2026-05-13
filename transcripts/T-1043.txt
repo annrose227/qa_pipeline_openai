@@ -1,0 +1,12 @@
+--- T-1043 (Agent: Linda) ---
+Linda: Hello, thanks for calling Deriv, this is Linda, how can I assist you today?
+Customer: Hi Linda, I'm trying to understand the leverage limits for forex trading on my account. I'm based in the UK.
+Linda: Of course! For UK clients under FCA regulation, the maximum leverage for major forex pairs is 1:30 for retail clients. If you're a professional client, that can go up to 1:500.
+Customer: How do I become a professional client?
+Linda: You'd need to meet at least two of three criteria: trading in significant size, a financial portfolio over €500,000, or relevant professional experience in financial services. You can apply through your account settings.
+Customer: Great, and is there a minimum deposit to get started?
+Linda: There's no minimum deposit for a standard account, though some trading platforms have their own minimums. Deriv Bot requires a $5 minimum for example.
+Customer: Perfect, that's really helpful.
+Linda: Wonderful! Is there anything else I can help with today?
+Customer: No, that's everything, thank you.
+Linda: My pleasure. Thanks for calling Deriv — have a lovely day!

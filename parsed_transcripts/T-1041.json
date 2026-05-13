@@ -1,0 +1,92 @@
+{
+  "call_id": "T-1041",
+  "agent_name": "Sara",
+  "turns": [
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 1,
+      "speaker": "Sara",
+      "text": "Thank you for calling Deriv support, you're speaking with Sara, how can I help you today?"
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 2,
+      "speaker": "Customer",
+      "text": "Hi, I've been waiting 6 days for my withdrawal and I'm getting really frustrated."
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 3,
+      "speaker": "Sara",
+      "text": "I completely understand your frustration, and I appreciate your patience. Can I take your account email to look into this?"
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 4,
+      "speaker": "Customer",
+      "text": "It's john.doe@email.com"
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 5,
+      "speaker": "Sara",
+      "text": "Thank you. I can see the withdrawal was initiated on the 12th. It looks like it's been flagged for a manual compliance review, which can take up to 7 business days. You're within that window, but I can escalate it for you to a senior reviewer."
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 6,
+      "speaker": "Customer",
+      "text": "Will that guarantee it gets processed today?"
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 7,
+      "speaker": "Sara",
+      "text": "I can't guarantee same-day processing, but escalating will ensure it's reviewed as a priority \u2014 typically within 24 hours. I'll raise that for you now."
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 8,
+      "speaker": "Customer",
+      "text": "Okay, thank you."
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 9,
+      "speaker": "Sara",
+      "text": "You'll get an email confirmation of the escalation within the hour. Is there anything else I can help with?"
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 10,
+      "speaker": "Customer",
+      "text": "No, that's all."
+    },
+    {
+      "call_id": "T-1041",
+      "agent_name": "Sara",
+      "turn_number": 11,
+      "speaker": "Sara",
+      "text": "Great, thank you for your patience and for calling Deriv. Have a great day!"
+    }
+  ],
+  "metadata": {
+    "estimated_duration_minutes": 8,
+    "total_turns": 11,
+    "agent_turns": 6,
+    "customer_turns": 5,
+    "issue_type": "financial_transaction",
+    "resolution_status": "unresolved",
+    "customer_escalation_signals": []
+  }
+}

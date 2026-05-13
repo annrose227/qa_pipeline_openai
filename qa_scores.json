@@ -1,0 +1,218 @@
+{
+  "T-1041": {
+    "call_id": "T-1041",
+    "agent_name": "Sara",
+    "dimension_scores": [
+      {
+        "dimension_id": "D1",
+        "score": 10,
+        "evidence_quote": "Thank you for calling Deriv support, you're speaking with Sara, how can I help you today?",
+        "rationale": "Agent greeted the customer and identified herself at the start of the call."
+      },
+      {
+        "dimension_id": "D2",
+        "score": 10,
+        "evidence_quote": "I completely understand your frustration, and I appreciate your patience. Can I take your account email to look into this?",
+        "rationale": "Agent demonstrated understanding of the issue and requested necessary information to investigate."
+      },
+      {
+        "dimension_id": "D3",
+        "score": 10,
+        "evidence_quote": "It looks like it's been flagged for a manual compliance review, which can take up to 7 business days. You're within that window, but I can escalate it for you to a senior reviewer.",
+        "rationale": "Agent provided accurate information about the withdrawal status and process."
+      },
+      {
+        "dimension_id": "D4",
+        "score": 10,
+        "evidence_quote": "It looks like it's been flagged for a manual compliance review, which can take up to 7 business days.",
+        "rationale": "Agent referenced compliance review and provided correct regulatory timeframe."
+      },
+      {
+        "dimension_id": "D5",
+        "score": 10,
+        "evidence_quote": "I completely understand your frustration, and I appreciate your patience.",
+        "rationale": "Agent showed empathy and maintained a polite, understanding tone throughout."
+      },
+      {
+        "dimension_id": "D6",
+        "score": 10,
+        "evidence_quote": "You'll get an email confirmation of the escalation within the hour.",
+        "rationale": "Agent clearly explained the next steps and set expectations for follow-up."
+      },
+      {
+        "dimension_id": "D7",
+        "score": 10,
+        "evidence_quote": "Great, thank you for your patience and for calling Deriv. Have a great day!",
+        "rationale": "Agent closed the call politely and thanked the customer."
+      }
+    ],
+    "auto_fail_checks": [
+      {
+        "condition": "Agent promises a specific outcome they cannot guarantee",
+        "triggered": false,
+        "evidence": null
+      },
+      {
+        "condition": "Agent discloses account details without completing identity verification",
+        "triggered": true,
+        "evidence": "Thank you. I can see the withdrawal was initiated on the 12th. It looks like it's been flagged for a manual compliance review, which can take up to 7 business days."
+      },
+      {
+        "condition": "Agent uses dismissive or confrontational language",
+        "triggered": false,
+        "evidence": null
+      },
+      {
+        "condition": "Agent provides incorrect regulatory information",
+        "triggered": false,
+        "evidence": null
+      }
+    ],
+    "weighted_total": 100.0,
+    "auto_fail_triggered": true
+  },
+  "T-1042": {
+    "call_id": "T-1042",
+    "agent_name": "Marcus",
+    "dimension_scores": [
+      {
+        "dimension_id": "D1",
+        "score": 7,
+        "evidence_quote": "Deriv support, Marcus speaking.",
+        "rationale": "Agent greeted and identified himself but did not greet the customer personally."
+      },
+      {
+        "dimension_id": "D2",
+        "score": 8,
+        "evidence_quote": "I want to know why my account was suspended. I haven't done anything wrong. / Right, I can see here your account was flagged by our fraud team.",
+        "rationale": "Agent understood the issue and checked the account for the reason."
+      },
+      {
+        "dimension_id": "D3",
+        "score": 7,
+        "evidence_quote": "your account was flagged by our fraud team. It looks like there were some unusual login patterns.",
+        "rationale": "Agent provided accurate information but was vague about specifics and process."
+      },
+      {
+        "dimension_id": "D4",
+        "score": 5,
+        "evidence_quote": "The fraud team makes that call, not me. You'd have to wait for them to review it which could be weeks.",
+        "rationale": "Agent referenced process but did not use clear regulatory or compliance language."
+      },
+      {
+        "dimension_id": "D5",
+        "score": 3,
+        "evidence_quote": "I get that you're annoyed but there's not much I can do.",
+        "rationale": "Agent acknowledged frustration but used dismissive tone and lacked empathy."
+      },
+      {
+        "dimension_id": "D6",
+        "score": 4,
+        "evidence_quote": "I can log a note if you want.",
+        "rationale": "Agent offered minimal next steps and did not clarify the process or timeline well."
+      },
+      {
+        "dimension_id": "D7",
+        "score": 2,
+        "evidence_quote": "That's your right. Is there anything else?",
+        "rationale": "Call closure was abrupt and lacked courtesy or appreciation."
+      }
+    ],
+    "auto_fail_checks": [
+      {
+        "condition": "Agent promises a specific outcome they cannot guarantee",
+        "triggered": false,
+        "evidence": null
+      },
+      {
+        "condition": "Agent discloses account details without completing identity verification",
+        "triggered": true,
+        "evidence": "What's your email? / Right, I can see here your account was flagged by our fraud team."
+      },
+      {
+        "condition": "Agent uses dismissive or confrontational language",
+        "triggered": true,
+        "evidence": "I get that you're annoyed but there's not much I can do. / That's your right."
+      },
+      {
+        "condition": "Agent provides incorrect regulatory information",
+        "triggered": false,
+        "evidence": null
+      }
+    ],
+    "weighted_total": 54.5,
+    "auto_fail_triggered": true
+  },
+  "T-1043": {
+    "call_id": "T-1043",
+    "agent_name": "Linda",
+    "dimension_scores": [
+      {
+        "dimension_id": "D1",
+        "score": 10,
+        "evidence_quote": "Hello, thanks for calling Deriv, this is Linda, how can I assist you today?",
+        "rationale": "Agent greeted the customer and identified herself and the company."
+      },
+      {
+        "dimension_id": "D2",
+        "score": 10,
+        "evidence_quote": "Of course! For UK clients under FCA regulation, the maximum leverage for major forex pairs is 1:30 for retail clients.",
+        "rationale": "Agent demonstrated clear understanding of the customer's question and provided relevant information."
+      },
+      {
+        "dimension_id": "D3",
+        "score": 10,
+        "evidence_quote": "For UK clients under FCA regulation, the maximum leverage for major forex pairs is 1:30 for retail clients. If you're a professional client, that can go up to 1:500.",
+        "rationale": "All information provided was accurate and specific to the customer's regulatory context."
+      },
+      {
+        "dimension_id": "D4",
+        "score": 10,
+        "evidence_quote": "For UK clients under FCA regulation, the maximum leverage for major forex pairs is 1:30 for retail clients.",
+        "rationale": "Agent referenced correct regulatory requirements and used compliant language."
+      },
+      {
+        "dimension_id": "D5",
+        "score": 10,
+        "evidence_quote": "Of course!... Wonderful! Is there anything else I can help with today?",
+        "rationale": "Agent maintained a friendly, helpful, and empathetic tone throughout the call."
+      },
+      {
+        "dimension_id": "D6",
+        "score": 10,
+        "evidence_quote": "You can apply through your account settings.",
+        "rationale": "Agent provided clear next steps for the customer's inquiry."
+      },
+      {
+        "dimension_id": "D7",
+        "score": 10,
+        "evidence_quote": "My pleasure. Thanks for calling Deriv \u2014 have a lovely day!",
+        "rationale": "Agent closed the call politely and professionally."
+      }
+    ],
+    "auto_fail_checks": [
+      {
+        "condition": "Agent promises a specific outcome they cannot guarantee",
+        "triggered": false,
+        "evidence": null
+      },
+      {
+        "condition": "Agent discloses account details without completing identity verification",
+        "triggered": false,
+        "evidence": null
+      },
+      {
+        "condition": "Agent uses dismissive or confrontational language",
+        "triggered": false,
+        "evidence": null
+      },
+      {
+        "condition": "Agent provides incorrect regulatory information",
+        "triggered": false,
+        "evidence": null
+      }
+    ],
+    "weighted_total": 100.0,
+    "auto_fail_triggered": false
+  }
+}

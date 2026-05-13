@@ -1,0 +1,12 @@
+--- T-1042 (Agent: Marcus) ---
+Marcus: Deriv support, Marcus speaking.
+Customer: I want to know why my account was suspended. I haven't done anything wrong.
+Marcus: Okay so I need to look at your account. What's your email?
+Customer: mark.smith@email.com
+Marcus: Right, I can see here your account was flagged by our fraud team. It looks like there were some unusual login patterns.
+Customer: That's ridiculous. I want it unsuspended now.
+Marcus: I get that you're annoyed but there's not much I can do. The fraud team makes that call, not me. You'd have to wait for them to review it which could be weeks.
+Customer: Weeks?! That's unacceptable. I have money in there.
+Marcus: Yeah I understand but I can't override the fraud team. That's just how it works. I can log a note if you want.
+Customer: This is terrible service. I'm going to report you.
+Marcus: That's your right. Is there anything else?

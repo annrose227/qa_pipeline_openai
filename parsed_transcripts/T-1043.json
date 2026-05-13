@@ -1,0 +1,92 @@
+{
+  "call_id": "T-1043",
+  "agent_name": "Linda",
+  "turns": [
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 1,
+      "speaker": "Linda",
+      "text": "Hello, thanks for calling Deriv, this is Linda, how can I assist you today?"
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 2,
+      "speaker": "Customer",
+      "text": "Hi Linda, I'm trying to understand the leverage limits for forex trading on my account. I'm based in the UK."
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 3,
+      "speaker": "Linda",
+      "text": "Of course! For UK clients under FCA regulation, the maximum leverage for major forex pairs is 1:30 for retail clients. If you're a professional client, that can go up to 1:500."
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 4,
+      "speaker": "Customer",
+      "text": "How do I become a professional client?"
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 5,
+      "speaker": "Linda",
+      "text": "You'd need to meet at least two of three criteria: trading in significant size, a financial portfolio over \u20ac500,000, or relevant professional experience in financial services. You can apply through your account settings."
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 6,
+      "speaker": "Customer",
+      "text": "Great, and is there a minimum deposit to get started?"
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 7,
+      "speaker": "Linda",
+      "text": "There's no minimum deposit for a standard account, though some trading platforms have their own minimums. Deriv Bot requires a $5 minimum for example."
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 8,
+      "speaker": "Customer",
+      "text": "Perfect, that's really helpful."
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 9,
+      "speaker": "Linda",
+      "text": "Wonderful! Is there anything else I can help with today?"
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 10,
+      "speaker": "Customer",
+      "text": "No, that's everything, thank you."
+    },
+    {
+      "call_id": "T-1043",
+      "agent_name": "Linda",
+      "turn_number": 11,
+      "speaker": "Linda",
+      "text": "My pleasure. Thanks for calling Deriv \u2014 have a lovely day!"
+    }
+  ],
+  "metadata": {
+    "estimated_duration_minutes": 8,
+    "total_turns": 11,
+    "agent_turns": 6,
+    "customer_turns": 5,
+    "issue_type": "financial_transaction",
+    "resolution_status": "resolved",
+    "customer_escalation_signals": []
+  }
+}
