@@ -28,10 +28,19 @@ $env:OPENAI_API_KEY = "sk-proj-your-key-here"
 set OPENAI_API_KEY=sk-proj-your-key-here
 ```
 
-### 3. Run the pipeline
+### 3. Install dependencies and run the pipeline
 
 ```bash
-pip install requests
+pip install -r requirements.txt
+cp .env.example .env
+python pipeline_openai.py
+```
+
+On Windows PowerShell:
+
+```powershell
+pip install -r requirements.txt
+Copy-Item .env.example .env
 python pipeline_openai.py
 ```
 

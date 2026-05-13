@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 sys.path.insert(0, str(ROOT))
 
-from pipeline import (
+from pipeline_openai import (
     _run_validation,
     QA_FRAMEWORK_FILE,
     QA_SCORES_FILE,

@@ -17,16 +17,22 @@ import sys
 import textwrap
 import time
 from datetime import datetime, timezone
+from enum import Enum
 from pathlib import Path
+from typing import Literal, Optional
 
 import requests
+from dotenv import load_dotenv
+from pydantic import BaseModel, Field, ValidationError, validator
 
 # ---------------------------------------------------------------------------
-# Config — OpenAI
+# Config — OpenAI + pipeline
 # ---------------------------------------------------------------------------
-OPENAI_MODEL = "gpt-4.1"
+load_dotenv()  # Load .env automatically when available
+OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4.1")
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 MAX_TOKENS = 4096
+MAX_RETRIES = 3
 
 ROOT = Path(__file__).parent
 TRANSCRIPTS_DIR = ROOT / "transcripts"
@@ -62,47 +68,65 @@ def compute_grade(weighted_score: float, auto_fail: bool) -> str:
     return "F"
 
 
+def calculate_weighted_score(dimensions: list[dict], scores: list[dict]) -> float:
+    dim_map = {d["id"]: d["weight"] for d in dimensions}
+    weighted_total = sum(scores_item["score"] * dim_map.get(scores_item["dimension_id"], 0) for scores_item in scores)
+    return round(weighted_total * 10, 2)
+
+
 # ---------------------------------------------------------------------------
-# Pipeline state machine
+# Pipeline stages and state machine
 # ---------------------------------------------------------------------------
+class PipelineStage(str, Enum):
+    INIT = "INIT"
+    INPUTS_LOADED = "INPUTS_LOADED"
+    TRANSCRIPTS_PARSED = "TRANSCRIPTS_PARSED"
+    QA_SCORED = "QA_SCORED"
+    COMPLIANCE_EXTRACTED = "COMPLIANCE_EXTRACTED"
+    COACHING_GENERATED = "COACHING_GENERATED"
+    DASHBOARD_COMPUTED = "DASHBOARD_COMPUTED"
+    VALIDATION_COMPLETE = "VALIDATION_COMPLETE"
+    RESULTS_FINALISED = "RESULTS_FINALISED"
+
+
 STAGES = [
-    "INIT",
-    "INPUTS_LOADED",
-    "TRANSCRIPTS_PARSED",
-    "QA_SCORED",
-    "COMPLIANCE_EXTRACTED",
-    "COACHING_GENERATED",
-    "DASHBOARD_COMPUTED",
-    "VALIDATION_COMPLETE",
-    "RESULTS_FINALISED",
+    PipelineStage.INIT,
+    PipelineStage.INPUTS_LOADED,
+    PipelineStage.TRANSCRIPTS_PARSED,
+    PipelineStage.QA_SCORED,
+    PipelineStage.COMPLIANCE_EXTRACTED,
+    PipelineStage.COACHING_GENERATED,
+    PipelineStage.DASHBOARD_COMPUTED,
+    PipelineStage.VALIDATION_COMPLETE,
+    PipelineStage.RESULTS_FINALISED,
 ]
 
 
 class PipelineState:
     def __init__(self):
-        self.stage = "INIT"
-        self.transcripts: list[dict] = []
+        self.stage: PipelineStage = PipelineStage.INIT
+        self.transcripts: list[Path] = []
         self.parsed: dict[str, dict] = {}
         self.qa_scores: dict[str, dict] = {}
         self.compliance_flags: dict[str, list] = {}
-        self.coaching_notes: dict[str, str] = {}
+        self.coaching_notes: dict[str, dict] = {}
         self.framework: dict = {}
         self.llm_log: list[dict] = []
 
-    def advance(self, next_stage: str):
+    def advance(self, next_stage: PipelineStage):
         idx_current = STAGES.index(self.stage)
         idx_next = STAGES.index(next_stage)
         if idx_next != idx_current + 1:
             raise RuntimeError(
                 f"Invalid stage transition: {self.stage} -> {next_stage}"
             )
-        print(f"  [stage] {self.stage} -> {next_stage}")
+        print(f"  [{datetime.now(timezone.utc).isoformat()}] Stage -> {self.stage.value} -> {next_stage.value}")
         self.stage = next_stage
 
-    def assert_stage(self, required: str):
+    def assert_stage(self, required: PipelineStage):
         if self.stage != required:
             raise RuntimeError(
-                f"Expected stage {required}, currently at {self.stage}"
+                f"Expected stage {required.value}, currently at {self.stage.value}"
             )
 
     def log_llm_call(self, record: dict):
@@ -112,10 +136,161 @@ class PipelineState:
 
 
 # ---------------------------------------------------------------------------
+# Data schemas
+# ---------------------------------------------------------------------------
+class TranscriptMetadata(BaseModel):
+    estimated_duration_minutes: int
+    total_turns: int
+    agent_turns: int
+    customer_turns: int
+    issue_type: str
+    resolution_status: str
+    customer_escalation_signals: list[str]
+
+
+class TranscriptTurn(BaseModel):
+    call_id: str
+    agent_name: str
+    turn_number: int
+    speaker: str
+    text: str
+
+
+class ParsedTranscript(BaseModel):
+    call_id: str
+    agent_name: str
+    turns: list[TranscriptTurn]
+    metadata: TranscriptMetadata
+
+    @classmethod
+    def validate_dict(cls, data: dict):
+        return cls.parse_obj(data)
+
+
+class QAFrameworkDimension(BaseModel):
+    id: str
+    name: str
+    weight: float
+
+
+class QAFramework(BaseModel):
+    dimensions: list[QAFrameworkDimension]
+    auto_fail_conditions: list[str] = []
+
+    @classmethod
+    def validate_dict(cls, data: dict):
+        return cls.parse_obj(data)
+
+    @property
+    def total_weight(self) -> float:
+        return sum(d.weight for d in self.dimensions)
+
+    @classmethod
+    def validate_weights(cls, values):
+        total = sum(d.weight for d in values)
+        if abs(total - 1.0) > 1e-6:
+            raise ValueError(f"QA framework weights must sum to 1.0, got {total}")
+        return values
+
+
+class ScoreDimension(BaseModel):
+    dimension_id: str
+    score: float
+    evidence_quote: str
+    rationale: str
+
+    @classmethod
+    def validate_dict(cls, data: dict):
+        return cls.parse_obj(data)
+
+    @classmethod
+    def validate_score(cls, v: float):
+        if not 0 <= v <= 10:
+            raise ValueError("Dimension scores must be between 0 and 10")
+        return v
+
+
+
+
+class AutoFailCheck(BaseModel):
+    condition: str
+    triggered: bool
+    evidence: Optional[str] = None
+
+
+class QAResult(BaseModel):
+    call_id: str
+    agent_name: str
+    dimension_scores: list[ScoreDimension]
+    auto_fail_checks: list[AutoFailCheck]
+    weighted_total: float
+    auto_fail_triggered: bool
+
+    @classmethod
+    def validate_dict(cls, data: dict):
+        return cls.parse_obj(data)
+
+
+class ComplianceFlag(BaseModel):
+    call_id: str
+    statement_text: str
+    speaker: str
+    risk_type: Literal["regulatory", "financial_commitment", "data_disclosure", "conduct", "reputational", "other"]
+    severity: Literal["critical", "high", "medium", "low"]
+    explanation: str
+
+    @classmethod
+    def validate_dict(cls, data: dict):
+        return cls.parse_obj(data)
+
+
+class CoachingPoint(BaseModel):
+    point: str
+    agent_quote: str
+
+
+class DevelopmentArea(CoachingPoint):
+    suggested_alternative: str
+
+
+class CoachingNotes(BaseModel):
+    call_id: str
+    agent_name: str
+    what_went_well: list[CoachingPoint]
+    development_areas: list[DevelopmentArea]
+
+    @classmethod
+    def validate_dict(cls, data: dict):
+        return cls.parse_obj(data)
+
+    @validator("what_went_well", "development_areas")
+    def require_at_least_two_items(cls, value):
+        if len(value) < 2:
+            raise ValueError("Must provide at least two coaching points")
+        return value
+
+
+class LLMLogRecord(BaseModel):
+    stage: str
+    call_id: str
+    timestamp: str
+    provider: str
+    model: str
+    prompt_hash: str
+    input_artifacts: list[str]
+    output_artifact: str
+    qa_scores_included: bool
+
+    @classmethod
+    def validate_dict(cls, data: dict):
+        return cls.parse_obj(data)
+
+
+# ---------------------------------------------------------------------------
 # LLM helper
 # ---------------------------------------------------------------------------
 def prompt_hash(text: str) -> str:
-    return hashlib.sha256(text.encode()).hexdigest()[:16]
+    return hashlib.sha256(text.encode()).hexdigest()
 
 
 def call_llm(
@@ -132,6 +307,8 @@ def call_llm(
     p_hash = prompt_hash(full_prompt)
 
     api_key = os.environ.get("OPENAI_API_KEY", "")
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY is required for OpenAI API calls")
 
     # OpenAI Chat Completions payload
     payload = {
@@ -190,6 +367,40 @@ def call_llm(
 # ---------------------------------------------------------------------------
 # Stage helpers
 # ---------------------------------------------------------------------------
+
+def _cleanup_json_payload(text: str) -> str:
+    text = text.strip()
+    # Remove fenced blocks if present
+    fenced = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", text)
+    if fenced:
+        text = fenced.group(1).strip()
+
+    first_brace = min(
+        [pos for pos in (text.find("{"), text.find("[")) if pos != -1] or [0]
+    )
+    last_brace = max(text.rfind("}"), text.rfind("]"))
+    if last_brace > first_brace:
+        text = text[first_brace : last_brace + 1]
+
+    # Remove trailing commas inside JSON objects/arrays
+    text = re.sub(r",\s*([}\]])", r"\1", text)
+    return text
+
+
+def parse_json_with_retries(raw_text: str, max_retries: int = MAX_RETRIES) -> dict:
+    last_error = None
+    text = raw_text
+    for attempt in range(1, max_retries + 1):
+        try:
+            return json.loads(_cleanup_json_payload(text))
+        except json.JSONDecodeError as e:
+            last_error = e
+            if attempt == max_retries:
+                raise
+            text = _cleanup_json_payload(text)
+    raise last_error
+
+
 def extract_json_block(text: str) -> str:
     """Extract the first JSON block from LLM output (with or without fences)."""
     # Try fenced block first
@@ -200,7 +411,6 @@ def extract_json_block(text: str) -> str:
     for start_char, end_char in [("{", "}"), ("[", "]")]:
         start = text.find(start_char)
         if start != -1:
-            # Find matching end
             depth = 0
             for i, c in enumerate(text[start:], start):
                 if c == start_char:
@@ -216,13 +426,17 @@ def extract_json_block(text: str) -> str:
 # STAGE 1: Load inputs
 # ---------------------------------------------------------------------------
 def stage_load_inputs(state: PipelineState):
-    state.assert_stage("INIT")
+    state.assert_stage(PipelineStage.INIT)
     print("\n[1] Loading inputs...")
 
     if not QA_FRAMEWORK_FILE.exists():
         raise FileNotFoundError(f"Missing {QA_FRAMEWORK_FILE}")
     with open(QA_FRAMEWORK_FILE, encoding="utf-8") as f:
-        state.framework = json.load(f)
+        framework_data = json.load(f)
+
+    state.framework = QAFramework.validate_dict(framework_data).dict()
+    if abs(sum(d["weight"] for d in state.framework["dimensions"]) - 1.0) > 1e-6:
+        raise ValueError("QA framework weights must sum to 1.0")
 
     txt_files = sorted(TRANSCRIPTS_DIR.glob("*.txt"))
     if not txt_files:
@@ -234,7 +448,7 @@ def stage_load_inputs(state: PipelineState):
     # Reset log file
     LLM_LOG_FILE.write_text("")
 
-    state.advance("INPUTS_LOADED")
+    state.advance(PipelineStage.INPUTS_LOADED)
 
 
 # ---------------------------------------------------------------------------
@@ -337,13 +551,14 @@ def parse_transcript_file(path: Path) -> dict:
 
 
 def stage_parse_transcripts(state: PipelineState):
-    state.assert_stage("INPUTS_LOADED")
+    state.assert_stage(PipelineStage.INPUTS_LOADED)
     print("\n[2] Parsing transcripts...")
     PARSED_DIR.mkdir(exist_ok=True)
 
     for path in state.transcripts:
         parsed = parse_transcript_file(path)
         call_id = parsed["call_id"]
+        ParsedTranscript.validate_dict(parsed)
         state.parsed[call_id] = parsed
 
         out = PARSED_DIR / f"{call_id}.json"
@@ -351,19 +566,26 @@ def stage_parse_transcripts(state: PipelineState):
             json.dump(parsed, f, indent=2)
         print(f"   Parsed {call_id} ({parsed['metadata']['total_turns']} turns) -> {out.name}")
 
-    state.advance("TRANSCRIPTS_PARSED")
+    state.advance(PipelineStage.TRANSCRIPTS_PARSED)
 
 
 # ---------------------------------------------------------------------------
 # STAGE 3: QA Scoring (one LLM call per transcript)
 # ---------------------------------------------------------------------------
 def stage_qa_scoring(state: PipelineState):
-    state.assert_stage("TRANSCRIPTS_PARSED")
+    state.assert_stage(PipelineStage.TRANSCRIPTS_PARSED)
     print("\n[3] QA Scoring (Stage 1 LLM calls)...")
 
     all_scores = {}
 
+    parsed_files = {p.stem for p in PARSED_DIR.glob("*.json")}
+    missing_parsed = [t.stem for t in state.transcripts if t.stem not in parsed_files]
+    if missing_parsed:
+        raise RuntimeError(f"Missing parsed transcript files before QA scoring: {missing_parsed}")
+
     for call_id, parsed in state.parsed.items():
+        if not (PARSED_DIR / f"{call_id}.json").exists():
+            raise FileNotFoundError(f"Parsed transcript JSON missing for {call_id}")
         agent_name = parsed["agent_name"]
         print(f"   Scoring {call_id} (Agent: {agent_name})...")
 
@@ -431,27 +653,20 @@ def stage_qa_scoring(state: PipelineState):
         )
 
         try:
-            result = json.loads(extract_json_block(raw))
+            result = parse_json_with_retries(raw)
         except json.JSONDecodeError as e:
             print(f"   ERROR parsing QA JSON for {call_id}: {e}")
             print(f"   Raw: {raw[:500]}")
             raise
 
-        # Compute weighted total deterministically in code
-        dim_map = {d["id"]: d["weight"] for d in state.framework["dimensions"]}
-        weighted_total = 0.0
-        for ds in result["dimension_scores"]:
-            w = dim_map.get(ds["dimension_id"], 0)
-            weighted_total += ds["score"] * w
-
-        # Normalise to 0-100
-        weighted_total_100 = weighted_total * 10
-
-        result["weighted_total"] = round(weighted_total_100, 2)
+        result["weighted_total"] = calculate_weighted_score(
+            state.framework["dimensions"], result["dimension_scores"]
+        )
         result["auto_fail_triggered"] = any(
             ac["triggered"] for ac in result["auto_fail_checks"]
         )
 
+        QAResult.validate_dict(result)
         all_scores[call_id] = result
         print(f"   {call_id}: weighted={result['weighted_total']:.1f}  auto_fail={result['auto_fail_triggered']}")
 
@@ -461,14 +676,14 @@ def stage_qa_scoring(state: PipelineState):
         json.dump(all_scores, f, indent=2)
     print(f"   Saved -> {QA_SCORES_FILE.name}")
 
-    state.advance("QA_SCORED")
+    state.advance(PipelineStage.QA_SCORED)
 
 
 # ---------------------------------------------------------------------------
 # STAGE 4: Compliance Extraction (one LLM call per transcript)
 # ---------------------------------------------------------------------------
 def stage_compliance_extraction(state: PipelineState):
-    state.assert_stage("QA_SCORED")
+    state.assert_stage(PipelineStage.QA_SCORED)
     print("\n[4] Compliance Extraction (Stage 2 LLM calls)...")
 
     all_flags = {}
@@ -521,10 +736,14 @@ def stage_compliance_extraction(state: PipelineState):
         )
 
         try:
-            flags = json.loads(extract_json_block(raw))
-        except json.JSONDecodeError as e:
+            flags = parse_json_with_retries(raw)
+            if not isinstance(flags, list):
+                raise ValueError("Compliance extraction must return a JSON array")
+            for flag in flags:
+                ComplianceFlag.validate_dict(flag)
+        except (json.JSONDecodeError, ValidationError, ValueError) as e:
             print(f"   ERROR parsing compliance JSON for {call_id}: {e}")
-            flags = []
+            raise
 
         all_flags[call_id] = flags
         print(f"   {call_id}: {len(flags)} compliance flag(s)")
@@ -535,14 +754,14 @@ def stage_compliance_extraction(state: PipelineState):
         json.dump(all_flags, f, indent=2)
     print(f"   Saved -> {COMPLIANCE_FLAGS_FILE.name}")
 
-    state.advance("COMPLIANCE_EXTRACTED")
+    state.advance(PipelineStage.COMPLIANCE_EXTRACTED)
 
 
 # ---------------------------------------------------------------------------
 # STAGE 5: Coaching Notes (one LLM call per transcript; NO QA scores)
 # ---------------------------------------------------------------------------
 def stage_coaching(state: PipelineState):
-    state.assert_stage("COMPLIANCE_EXTRACTED")
+    state.assert_stage(PipelineStage.COMPLIANCE_EXTRACTED)
     print("\n[5] Generating Coaching Notes (Stage 3 LLM calls — NO QA scores)...")
 
     coaching_parts = []
@@ -625,10 +844,11 @@ def stage_coaching(state: PipelineState):
         )
 
         try:
-            coaching = json.loads(extract_json_block(raw))
-        except json.JSONDecodeError as e:
-            print(f"   ERROR parsing coaching JSON for {call_id}: {e}")
-            coaching = {"call_id": call_id, "agent_name": agent_name, "raw": raw}
+            coaching = parse_json_with_retries(raw)
+            coaching = CoachingNotes.validate_dict(coaching).dict()
+            _verify_coaching_quotes(coaching, parsed["turns"])
+        except (json.JSONDecodeError, ValidationError, ValueError) as e:
+            raise RuntimeError(f"Invalid coaching output for {call_id}: {e}\nRaw output: {raw[:500]}")
 
         state.coaching_notes[call_id] = coaching
         coaching_parts.append(coaching)
@@ -637,7 +857,7 @@ def stage_coaching(state: PipelineState):
     _write_coaching_markdown(coaching_parts)
     print(f"   Saved -> {COACHING_NOTES_FILE.name}")
 
-    state.advance("COACHING_GENERATED")
+    state.advance(PipelineStage.COACHING_GENERATED)
 
 
 def _verify_no_qa_scores_in_prompt(user_prompt: str, system_prompt: str, call_id: str):
@@ -645,13 +865,22 @@ def _verify_no_qa_scores_in_prompt(user_prompt: str, system_prompt: str, call_id
     combined = (user_prompt + system_prompt).lower()
     forbidden_patterns = [
         "weighted_total", "weighted total", "auto_fail_triggered",
-        r"\bgrade\b", "dimension_score", "d1.*score", "d2.*score",
+        "qa_score", "grade", "auto_fail", "dimension_score",
+        r"\bd1\b", r"\bd2\b", r"\bd3\b", r"\bd4\b", r"\bd5\b", r"\bd6\b", r"\bd7\b",
     ]
     for pattern in forbidden_patterns:
         if re.search(pattern, combined):
             raise RuntimeError(
                 f"QA score data detected in coaching prompt for {call_id}: '{pattern}'"
             )
+
+
+def _verify_coaching_quotes(coaching: dict, turns: list[dict]):
+    transcript_text = "\n".join(t["text"] for t in turns)
+    for item in coaching.get("what_went_well", []) + coaching.get("development_areas", []):
+        quote = item.get("agent_quote", "")
+        if quote and quote not in transcript_text:
+            raise ValueError(f"Coaching quote not found in transcript: {quote}")
 
 
 def _write_coaching_markdown(coaching_list: list):
@@ -682,7 +911,7 @@ def _write_coaching_markdown(coaching_list: list):
 # STAGE 6: Dashboard Summary (deterministic code)
 # ---------------------------------------------------------------------------
 def stage_dashboard(state: PipelineState):
-    state.assert_stage("COACHING_GENERATED")
+    state.assert_stage(PipelineStage.COACHING_GENERATED)
     print("\n[6] Computing Dashboard Summary...")
 
     severity_rank = {"critical": 4, "high": 3, "medium": 2, "low": 1}
@@ -720,7 +949,7 @@ def stage_dashboard(state: PipelineState):
     # Store rows for later use
     state._dashboard_rows = rows
 
-    state.advance("DASHBOARD_COMPUTED")
+    state.advance(PipelineStage.DASHBOARD_COMPUTED)
 
 
 def _write_dashboard_markdown(rows: list):
@@ -797,7 +1026,7 @@ def stage_calibration(state: PipelineState):
     )
 
     try:
-        result = json.loads(extract_json_block(raw))
+        result = parse_json_with_retries(raw)
     except json.JSONDecodeError:
         result = []
 
@@ -958,7 +1187,7 @@ def stage_rebuttal_coaching(state: PipelineState):
         )
 
         try:
-            scenario = json.loads(extract_json_block(raw))
+            scenario = parse_json_with_retries(raw)
         except json.JSONDecodeError:
             scenario = {"call_id": call_id, "raw": raw}
 
@@ -990,10 +1219,10 @@ def _write_rebuttal_markdown(scenarios: list):
 # Validation stage
 # ---------------------------------------------------------------------------
 def stage_validation(state: PipelineState):
-    state.assert_stage("DASHBOARD_COMPUTED")
+    state.assert_stage(PipelineStage.DASHBOARD_COMPUTED)
     print("\n[V] Validation...")
     _run_validation(state)
-    state.advance("VALIDATION_COMPLETE")
+    state.advance(PipelineStage.VALIDATION_COMPLETE)
 
 
 def _run_validation(state: PipelineState = None, standalone: bool = False):
@@ -1036,10 +1265,13 @@ def _run_validation(state: PipelineState = None, standalone: bool = False):
                 line = line.strip()
                 if line:
                     try:
-                        llm_records.append(json.loads(line))
+                        record = json.loads(line)
+                        LLMLogRecord.validate_dict(record)
+                        llm_records.append(record)
                     except json.JSONDecodeError:
                         errors.append(f"Invalid JSON line in llm_calls.jsonl: {line[:80]}")
-
+                    except ValidationError as exc:
+                        errors.append(f"Invalid LLM log record schema: {exc}")
         # Per-transcript stage checks
         if QA_SCORES_FILE.exists():
             with open(QA_SCORES_FILE) as f:
@@ -1068,6 +1300,8 @@ def _run_validation(state: PipelineState = None, standalone: bool = False):
             with open(QA_SCORES_FILE) as f:
                 scores = json.load(f)
             fw_dim_ids = {d["id"] for d in fw["dimensions"]}
+            total_weight = sum(d["weight"] for d in fw["dimensions"])
+            check(abs(total_weight - 1.0) < 1e-6, f"QA framework weights must sum to 1.0, got {total_weight}")
             for cid, qa in scores.items():
                 scored_dims = {ds["dimension_id"] for ds in qa.get("dimension_scores", [])}
                 for did in fw_dim_ids:
@@ -1079,7 +1313,7 @@ def _run_validation(state: PipelineState = None, standalone: bool = False):
                     ac["condition"] for ac in qa.get("auto_fail_checks", [])
                 }
                 for cond in fw_conditions:
-                    warn(cond in scored_conditions, f"Auto-fail condition not checked in {cid}: {cond[:50]}")
+                    check(cond in scored_conditions, f"Auto-fail condition not checked in {cid}: {cond}")
 
         # Weighted score verification
         if QA_FRAMEWORK_FILE.exists() and QA_SCORES_FILE.exists():
@@ -1106,6 +1340,15 @@ def _run_validation(state: PipelineState = None, standalone: bool = False):
             dashboard_text = DASHBOARD_FILE.read_text()
             for cid in scores:
                 check(cid in dashboard_text, f"Call {cid} missing from dashboard")
+
+            dashboard_rows = [
+                line for line in dashboard_text.splitlines()
+                if line.startswith("| ") and not line.startswith("| Agent") and not line.startswith("| Grade")
+            ]
+            check(
+                len(dashboard_rows) == len(scores),
+                f"Dashboard row count {len(dashboard_rows)} does not match transcript count {len(scores)}",
+            )
 
     # Grade thresholds are deterministic (check that grade matches expected)
     if QA_SCORES_FILE.exists() and DASHBOARD_FILE.exists():
@@ -1142,7 +1385,7 @@ def _run_validation(state: PipelineState = None, standalone: bool = False):
 # Finalise
 # ---------------------------------------------------------------------------
 def stage_finalise(state: PipelineState):
-    state.assert_stage("VALIDATION_COMPLETE")
+    state.assert_stage(PipelineStage.VALIDATION_COMPLETE)
     print("\n[F] Finalising results...")
 
     summary = {
