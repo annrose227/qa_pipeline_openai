@@ -1,0 +1,18 @@
+{
+  "pipeline_completed": "2026-05-13T10:39:08.108860+00:00",
+  "transcripts_processed": 3,
+  "llm_calls_made": 11,
+  "artifacts": [
+    "calibration_check.json",
+    "compliance_flags.json",
+    "escalation_cases.json",
+    "qa_framework.json",
+    "qa_scores.json",
+    "team_trend.json",
+    "coaching_notes.md",
+    "dashboard_summary.md",
+    "README.md",
+    "rebuttal_coaching.md",
+    "llm_calls.jsonl"
+  ]
+}

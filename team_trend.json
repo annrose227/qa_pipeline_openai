@@ -1,0 +1,51 @@
+{
+  "D1": {
+    "dimension_id": "D1",
+    "baseline": 8,
+    "current_average": 9.33,
+    "delta": 1.33,
+    "direction": "up"
+  },
+  "D2": {
+    "dimension_id": "D2",
+    "baseline": 7,
+    "current_average": 8.67,
+    "delta": 1.67,
+    "direction": "up"
+  },
+  "D3": {
+    "dimension_id": "D3",
+    "baseline": 7,
+    "current_average": 9.0,
+    "delta": 2.0,
+    "direction": "up"
+  },
+  "D4": {
+    "dimension_id": "D4",
+    "baseline": 6,
+    "current_average": 8.67,
+    "delta": 2.67,
+    "direction": "up"
+  },
+  "D5": {
+    "dimension_id": "D5",
+    "baseline": 7,
+    "current_average": 8.0,
+    "delta": 1.0,
+    "direction": "up"
+  },
+  "D6": {
+    "dimension_id": "D6",
+    "baseline": 7,
+    "current_average": 8.33,
+    "delta": 1.33,
+    "direction": "up"
+  },
+  "D7": {
+    "dimension_id": "D7",
+    "baseline": 8,
+    "current_average": 8.67,
+    "delta": 0.67,
+    "direction": "up"
+  }
+}

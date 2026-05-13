@@ -13,19 +13,19 @@ Go to https://platform.openai.com/api-keys and create a key.
 **macOS / Linux:**
 
 ```bash
-export OPENAI_API_KEY=sk-proj-your-key-here
+export OPENAI_API_KEY=<your-openai-api-key>
 ```
 
 **Windows PowerShell:**
 
 ```powershell
-$env:OPENAI_API_KEY = "sk-proj-your-key-here"
+$env:OPENAI_API_KEY = "<your-openai-api-key>"
 ```
 
 **Windows Command Prompt:**
 
 ```cmd
-set OPENAI_API_KEY=sk-proj-your-key-here
+set OPENAI_API_KEY=<your-openai-api-key>
 ```
 
 ### 3. Install dependencies and run the pipeline

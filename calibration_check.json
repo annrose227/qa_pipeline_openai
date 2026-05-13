@@ -1,0 +1,10 @@
+{
+  "dimension_id": "D1",
+  "call_ids": [
+    "T-1041",
+    "T-1042"
+  ],
+  "observed_difference": "Score of 10 for Sara vs. 8 for Marcus for greeting and identification.",
+  "why_it_may_be_inconsistent": "Both agents greeted and identified themselves clearly at the start of the call, but Marcus received a lower score without clear rationale for the deduction.",
+  "recommended_adjustment": "Increase Marcus's score to 10 for D1 to match the consistent standard applied to Sara."
+}

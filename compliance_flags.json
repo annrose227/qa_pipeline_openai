@@ -3,35 +3,19 @@
   "T-1042": [
     {
       "call_id": "T-1042",
-      "statement_text": "What's your email?",
-      "speaker": "Marcus",
-      "risk_type": "data_disclosure",
-      "severity": "medium",
-      "explanation": "The agent requests personal information (email) without first verifying the customer's identity, which could lead to unauthorized disclosure of account information if the caller is not the account holder."
-    },
-    {
-      "call_id": "T-1042",
-      "statement_text": "I can see here your account was flagged by our fraud team. It looks like there were some unusual login patterns.",
-      "speaker": "Marcus",
-      "risk_type": "data_disclosure",
-      "severity": "medium",
-      "explanation": "The agent discloses specific account status and internal fraud investigation details after only receiving an email address, without conducting a full identity verification, which may breach data protection policies."
-    },
-    {
-      "call_id": "T-1042",
-      "statement_text": "You'd have to wait for them to review it which could be weeks.",
-      "speaker": "Marcus",
-      "risk_type": "reputational",
-      "severity": "low",
-      "explanation": "The agent gives an imprecise and potentially exaggerated timeframe for account review, which could negatively impact the company's reputation for customer service and transparency."
-    },
-    {
-      "call_id": "T-1042",
-      "statement_text": "I get that you're annoyed but there's not much I can do.",
+      "statement_text": "I get that you're annoyed but there's not much I can do. The fraud team makes that call, not me. You'd have to wait for them to review it which could be weeks.",
       "speaker": "Marcus",
       "risk_type": "conduct",
+      "severity": "medium",
+      "explanation": "The agent's response may be perceived as dismissive and lacking empathy, which can harm customer relations and the company's reputation."
+    },
+    {
+      "call_id": "T-1042",
+      "statement_text": "Right, I can see here your account was flagged by our fraud team. It looks like there were some unusual login patterns.",
+      "speaker": "Marcus",
+      "risk_type": "data_disclosure",
       "severity": "low",
-      "explanation": "The agent's tone may be perceived as dismissive, which could be seen as poor conduct and damage the company's reputation for customer care."
+      "explanation": "The agent disclosed internal fraud investigation details to the customer, which may risk revealing sensitive operational information."
     }
   ],
   "T-1043": []

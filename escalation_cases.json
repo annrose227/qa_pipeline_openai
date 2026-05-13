@@ -1,0 +1,10 @@
+[
+  {
+    "call_id": "T-1042",
+    "agent_name": "Marcus",
+    "trigger_type": "auto_fail",
+    "triggered_condition": "Agent uses dismissive or confrontational language",
+    "transcript_excerpt": "I get that you're annoyed but there's not much I can do.",
+    "recommended_action": "Immediate supervisor review required. Do not replay recording to customer without legal approval."
+  }
+]

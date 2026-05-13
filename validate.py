@@ -34,15 +34,15 @@ print("\nChecking required artifacts...")
 optional = [CALIBRATION_FILE, TEAM_TREND_FILE, ESCALATION_FILE, REBUTTAL_FILE]
 for f in optional:
     if f.exists():
-        print(f"  [optional] {f.name} ✓")
+        print(f"  [optional] {f.name} OK")
     else:
-        print(f"  [optional] {f.name} — not present")
+        print(f"  [optional] {f.name} - not present")
 
 errors, warnings = _run_validation(state=None, standalone=True)
 
 if not errors:
-    print("\n✓ VALIDATION PASSED")
+    print("\nVALIDATION PASSED")
     sys.exit(0)
 else:
-    print(f"\n✗ VALIDATION FAILED — {len(errors)} error(s)")
+    print(f"\nVALIDATION FAILED - {len(errors)} error(s)")
     sys.exit(1)
